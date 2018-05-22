@@ -1,6 +1,5 @@
 Build (optional)
 -------------------------
-cd tron-wallet
 ./gradlew build
 
 Run
