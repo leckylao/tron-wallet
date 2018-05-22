@@ -1,4 +1,4 @@
-Build (optional)
+Build
 -------------------------
 ./gradlew build
 
