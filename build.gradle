@@ -73,6 +73,8 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
+    //local libraries
+    compile fileTree(dir: 'libs', include: '*.jar')
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'com.beust', name: 'jcommander', version: '1.72'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
@@ -89,6 +91,8 @@ dependencies {
 
     compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.4'
 
+    //compile "org.eclipse:swt:3.3.0-v3346"
+    //compile group: 'org.eclipse', name: 'swt', version: '3.3.0-v3346'
 
     compile "com.madgag.spongycastle:core:1.53.0.0"
     compile "com.madgag.spongycastle:prov:1.53.0.0"
@@ -168,6 +172,8 @@ run {
     if (project.hasProperty('cmd')) {
         standardInput = System.in
         mainClassName = 'org.tron.walletcli.TestClient'
+    }else{
+        mainClassName = 'MacWallet'
     }
 }
 
