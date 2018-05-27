@@ -34,7 +34,7 @@ public class MacWallet
         // create a new GridLayout with two columns
         // of different size
         GridLayout layout = new GridLayout(4, true);
-        shell.setSize(640, 480);
+        shell.setSize(640, 500);
         shell.setLayout(layout);
 
         MessageBox infoDialog =
@@ -121,7 +121,7 @@ public class MacWallet
         Label freeze_amount_label = new Label(shell, SWT.NONE);
         freeze_amount_label.setText("Freeze Amount (in TRX): ");
         Text freeze_amount = new Text (shell, SWT.BORDER);
-        freeze_amount.setLayoutData(data8);
+        freeze_amount.setLayoutData(data4);
 
         login.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -267,7 +267,7 @@ public class MacWallet
         Label vote_amount_label = new Label(shell, SWT.NONE);
         vote_amount_label.setText("Vote Amount (in TRX): ");
         Text vote_amount = new Text (shell, SWT.BORDER);
-        vote_address.setLayoutData(data8);
+        vote_amount.setLayoutData(data4);
 
         Button vote = new Button (shell, SWT.PUSH);
         vote.setText ("Vote Witness");
