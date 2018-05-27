@@ -36,7 +36,7 @@ public class MacWallet
         GridLayout layout = new GridLayout(4, true);
         shell.setSize(640, 480);
         shell.setLayout(layout);
-        
+
         MessageBox infoDialog =
                 new MessageBox(shell, SWT.ICON_INFORMATION);
         infoDialog.setText("Info");
@@ -76,6 +76,21 @@ public class MacWallet
 
         Button register = new Button (shell, SWT.PUSH);
         register.setText("Register");
+
+        Button backup = new Button (shell, SWT.PUSH);
+        backup.setText("Backup Wallet");
+        backup.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                String priKey = client.backupWallet("1234abcd");
+                if (priKey != null) {
+                    logger.info("Backup a wallet successful !!");
+                    logger.info("priKey = " + priKey);
+                    infoDialog.setMessage("priKey = " + priKey);
+                    infoDialog.open();
+                }
+            }
+        });
+        backup.setLayoutData(data4);
 
         Button logout = new Button (shell, SWT.PUSH);
         logout.setText("Logout");
