@@ -1,37 +1,19 @@
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Struct;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
-import org.tron.common.crypto.ECKey;
-import org.tron.common.utils.ByteArray;
-import org.tron.common.utils.Utils;
-import org.tron.core.config.Configuration;
 import org.tron.protos.Protocol;
-import org.tron.walletserver.WalletClient;
 import org.tron.walletcli.Client;
 
 public class MacWallet
 {
-    public static String account_private_key;
     public static String account_address;
 
     private static ManagedChannel channelFull = null;
