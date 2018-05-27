@@ -1,7 +1,12 @@
 import io.grpc.ManagedChannel;
 import org.eclipse.swt.SWT;
+//import org.eclipse.swt.custom.CTabFolder;
+//import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -33,9 +38,57 @@ public class MacWallet
         Shell shell = new Shell(display);
         // create a new GridLayout with two columns
         // of different size
-        GridLayout layout = new GridLayout(4, true);
+        GridLayout layout = new GridLayout(2, true);
+        final Color red = new Color(display,220,53,69);
+        final Color black = new Color(display,30,30,30);
+        Image logo = new Image(display, "images/tron-logo.png");
         shell.setSize(640, 500);
+        shell.setBackground(black);
         shell.setLayout(layout);
+//        Label logo_label = new Label(shell, SWT.None);
+//        logo_label.setImage(logo);
+//        logo_label.setBounds(100, 0, 50, 58);
+//        logo_label.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true));
+
+//        Canvas canvas = new Canvas(shell, SWT.NONE);
+//        canvas.addPaintListener(new PaintListener() {
+//            public void paintControl(PaintEvent e) {
+//                e.gc.drawImage(logo, 0, 0);
+//            }
+//        });
+
+        // SWT.BOTTOM to show at the bottom
+//        CTabFolder folder = new CTabFolder(shell, SWT.TOP);
+//        GridData data = new GridData(SWT.FILL,
+//                SWT.FILL, true, true,
+//                4, 1);
+//        folder.setLayoutData(data);
+////        folder.setSelectionForeground(display.getSystemColor(SWT.COLOR_RED));
+//        folder.setSelectionForeground(red);
+//        CTabItem cTabItem1 = new CTabItem(folder, SWT.NONE);
+//        cTabItem1.setText("Account");
+//        CTabItem cTabItem2 = new CTabItem(folder, SWT.NONE);
+//        cTabItem2.setText("Tron Power");
+//        CTabItem cTabItem3 = new CTabItem(folder, SWT.NONE);
+//        cTabItem3.setText("Vote");
+
+        shell.addPaintListener(new PaintListener() {
+            public void paintControl(PaintEvent event) {
+                event.gc.drawImage(logo, 250, 30);
+//                Rectangle rect = shell.getClientArea();
+//                ImageData data = logo.getImageData();
+//
+//                int srcX = data.width / 8;
+//                int srcY = data.height / 8;
+//                int srcWidth = data.width / 2;
+//                int srcHeight = data.height / 2;
+//                int destWidth = 2 * srcWidth;
+//                int destHeight = 2 * srcHeight;
+
+//                event.gc.drawImage(logo, srcX, srcY, srcWidth, srcHeight, rect.width
+//                        - destWidth, rect.height - destHeight, destWidth, destHeight);
+            }
+        });
 
         MessageBox infoDialog =
                 new MessageBox(shell, SWT.ICON_INFORMATION);
@@ -46,11 +99,12 @@ public class MacWallet
         errorDialog.setText("Error");
 
         // create new layout data
-        GridData data4 = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
-        GridData data8 = new GridData(SWT.FILL, SWT.TOP, true, false, 4, 1);
+        GridData data4 = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+        GridData data8 = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
 
         Label private_key_label = new Label(shell, SWT.NONE);
-        private_key_label.setText("Private key");
+        private_key_label.setForeground(red);
+        private_key_label.setText("Private Key");
         Text private_key = new Text (shell, SWT.BORDER);
 //        private_key.setLayoutData (new RowData (100, SWT.DEFAULT));
         private_key.setLayoutData(data8);
@@ -64,14 +118,17 @@ public class MacWallet
 //        status_label.setLayoutData(data8);
 
         Label address_label = new Label(shell, SWT.NONE);
+        address_label.setForeground(red);
         address_label.setText("Address: ");
         address_label.setLayoutData(data8);
 
         Label balance_label = new Label(shell, SWT.NONE);
+        balance_label.setForeground(red);
         balance_label.setText("Balance: ");
         balance_label.setLayoutData(data8);
 
         Button login = new Button (shell, SWT.PUSH);
+        login.setBackgroundImage(logo);
         login.setText ("Login");
 
         Button register = new Button (shell, SWT.PUSH);
@@ -105,20 +162,33 @@ public class MacWallet
             }
         });
         logout.setLayoutData(data4);
+//
+//        cTabItem1.setControl(shell);
+//        cTabItem1.setControl(private_key_label);
+//        cTabItem1.setControl(private_key);
+//        cTabItem1.setControl(address_label);
+//        cTabItem1.setControl(balance_label);
+//        cTabItem1.setControl(login);
+//        cTabItem1.setControl(register);
+//        cTabItem1.setControl(backup);
+//        cTabItem1.setControl(logout);
 
         // create a new label which is used as a separator
         Label label = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         label.setLayoutData(data8);
 
         Label frozen_balance_label = new Label(shell, SWT.NONE);
+        frozen_balance_label.setForeground(red);
         frozen_balance_label.setText("Tron Power: ");
         frozen_balance_label.setLayoutData(data8);
 
         Label expire_time_label = new Label(shell, SWT.NONE);
+        expire_time_label.setForeground(red);
         expire_time_label.setText("Expire Time: ");
         expire_time_label.setLayoutData(data8);
 
         Label freeze_amount_label = new Label(shell, SWT.NONE);
+        freeze_amount_label.setForeground(red);
         freeze_amount_label.setText("Freeze Amount (in TRX): ");
         Text freeze_amount = new Text (shell, SWT.BORDER);
         freeze_amount.setLayoutData(data4);
@@ -260,11 +330,13 @@ public class MacWallet
         label.setLayoutData(data8);
 
         Label vote_address_label = new Label(shell, SWT.NONE);
+        vote_address_label.setForeground(red);
         vote_address_label.setText("Witness Address: ");
         Text vote_address = new Text (shell, SWT.BORDER);
         vote_address.setLayoutData(data8);
 
         Label vote_amount_label = new Label(shell, SWT.NONE);
+        vote_amount_label.setForeground(red);
         vote_amount_label.setText("Vote Amount (in TRX): ");
         Text vote_amount = new Text (shell, SWT.BORDER);
         vote_amount.setLayoutData(data4);
@@ -305,6 +377,7 @@ public class MacWallet
         {
             if (!display.readAndDispatch()) display.sleep();
         }
+        logo.dispose();
         display.dispose();
     }
 
