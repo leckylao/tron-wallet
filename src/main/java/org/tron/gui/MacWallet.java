@@ -106,16 +106,12 @@ public class MacWallet
         private_key_label.setForeground(red);
         private_key_label.setText("Private Key");
         Text private_key = new Text (shell, SWT.BORDER);
-//        private_key.setLayoutData (new RowData (100, SWT.DEFAULT));
         private_key.setLayoutData(data8);
 
 //        Label password_label = new Label(shell, SWT.NONE);
 //        password_label.setText("Password");
 //        Text password = new Text (shell, SWT.BORDER);
 //        password.setLayoutData (new RowData (100, SWT.DEFAULT));
-
-//        Label status_label = new Label(shell, SWT.NONE);
-//        status_label.setLayoutData(data8);
 
         Label address_label = new Label(shell, SWT.NONE);
         address_label.setForeground(red);
@@ -127,6 +123,18 @@ public class MacWallet
         balance_label.setText("Balance: ");
         balance_label.setLayoutData(data8);
 
+        Label to_address_label = new Label(shell, SWT.NONE);
+        to_address_label.setForeground(red);
+        to_address_label.setText("To Address: ");
+        Text to_address = new Text (shell, SWT.BORDER);
+        to_address.setLayoutData(data8);
+
+        Label to_amount_label = new Label(shell, SWT.NONE);
+        to_amount_label.setForeground(red);
+        to_amount_label.setText("To Amount (in TRX): ");
+        Text to_amount = new Text (shell, SWT.BORDER);
+        to_amount.setLayoutData(data4);
+
         Button login = new Button (shell, SWT.PUSH);
         login.setBackgroundImage(logo);
         login.setText ("Login");
@@ -134,8 +142,46 @@ public class MacWallet
         Button register = new Button (shell, SWT.PUSH);
         register.setText("Register");
 
+        Button sendCoin = new Button (shell, SWT.PUSH);
+        sendCoin.setText("Send Coin");
+        sendCoin.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                String toAddress = to_address.getText();
+                String toAmount = to_amount.getText();
+                boolean result = client.sendCoin("1234abcd", toAddress, Long.parseLong(toAmount) * 1000000);
+                if (result) {
+                    logger.info("Send " + toAmount + " drop to " + toAddress + " successful !!");
+                    infoDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " successful !!");
+                    infoDialog.open();
+                } else {
+                    logger.info("Send " + toAmount + " drop to " + toAddress + " failed !!");
+                    errorDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " failed !!");
+                    errorDialog.open();
+                }
+            }
+        });
+        sendCoin.setLayoutData(data4);
+
+        Button backup_address = new Button (shell, SWT.PUSH);
+        backup_address.setText("Copy Address");
+        backup_address.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                if (account_address != null) {
+                    logger.info("Backup a address successful !!");
+                    logger.info("Address = " + account_address);
+                    infoDialog.setMessage("Address = " + account_address);
+                    infoDialog.open();
+                }else{
+                    logger.info("No address to copy !!");
+                    errorDialog.setMessage("No address to copy !!");
+                    errorDialog.open();
+                }
+            }
+        });
+        backup_address.setLayoutData(data4);
+
         Button backup = new Button (shell, SWT.PUSH);
-        backup.setText("Backup Wallet");
+        backup.setText("Copy Private Key");
         backup.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 String priKey = client.backupWallet("1234abcd");
@@ -144,6 +190,10 @@ public class MacWallet
                     logger.info("priKey = " + priKey);
                     infoDialog.setMessage("priKey = " + priKey);
                     infoDialog.open();
+                }else{
+                    logger.info("No private key to copy !!");
+                    errorDialog.setMessage("No private key to copy !!");
+                    errorDialog.open();
                 }
             }
         });
