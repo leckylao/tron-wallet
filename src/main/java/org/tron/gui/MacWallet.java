@@ -8,11 +8,11 @@ import org.eclipse.swt.widgets.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI;
-import org.tron.common.utils.Utils;
+import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import org.tron.walletcli.Client;
 import org.tron.walletserver.WalletClient;
-
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
@@ -36,13 +36,15 @@ public class MacWallet
         final Color black = new Color(display,30,30,30);
         final Color white_grey = new Color(display,238,238,238);
 //        final Color white_grey = new Color(display,187,187,187);
-        Image logo = new Image(display, "images/tron-logo.png");
+//        Image logo = new Image(display, "images/tron-logo.png");
+        String path = MacWallet.class.getClass().getResource("/images/tron-logo.png").getFile();
+        Image logo = new Image(display, path);
         shell.setSize(500, 480);
         shell.setBackground(black);
         shell.setLayout(layout);
 
         GridData gridData = new GridData(GridData.CENTER, GridData.CENTER, false, false, 2, 1);
-        gridData.widthHint = 71;
+        gridData.widthHint = 221;
         gridData.heightHint = 80;
         Canvas canvas = new Canvas(shell, SWT.NONE);
         canvas.setLayoutData(gridData);
@@ -78,41 +80,35 @@ public class MacWallet
         composite.setLayout(layout);
 
         Label address_label = new Label(composite, SWT.NONE);
-        address_label.setForeground(white_grey);
         address_label.setText("Address: ");
         address_label.setLayoutData(data8);
 
         Label balance_label = new Label(composite, SWT.NONE);
-        balance_label.setForeground(white_grey);
         balance_label.setText("Balance: ");
         balance_label.setLayoutData(data8);
 
         Label bandwidth_label = new Label(composite, SWT.NONE);
-        bandwidth_label.setForeground(white_grey);
         bandwidth_label.setText("Bandwidth: ");
         bandwidth_label.setLayoutData(data8);
 
         Label private_key_label = new Label(composite, SWT.NONE);
-        private_key_label.setForeground(white_grey);
         private_key_label.setText("Private Key");
         Text private_key = new Text (composite, SWT.BORDER);
         private_key.setLayoutData(text8);
 
         Label to_address_label = new Label(composite, SWT.NONE);
-        to_address_label.setForeground(white_grey);
         to_address_label.setText("To Address: ");
         Text to_address = new Text (composite, SWT.BORDER);
         to_address.setLayoutData(text8);
 
         Label to_amount_label = new Label(composite, SWT.NONE);
-        to_amount_label.setForeground(white_grey);
         to_amount_label.setText("To Amount (in TRX): ");
         Text to_amount = new Text (composite, SWT.BORDER);
-        to_amount.setLayoutData(data4);
+        to_amount.setLayoutData(data8);
 
         Button login = new Button (composite, SWT.PUSH);
         login.setBackgroundImage(logo);
-        login.setText ("Login");
+        login.setText ("Login/Refresh");
 
         Button register = new Button (composite, SWT.PUSH);
         register.setText("Register");
@@ -144,7 +140,7 @@ public class MacWallet
         sendCoin.setLayoutData(data4);
 
         Button backup_address = new Button (composite, SWT.PUSH);
-        backup_address.setText("Copy Address");
+        backup_address.setText("Show Address");
         backup_address.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 if (account_address != null) {
@@ -162,7 +158,7 @@ public class MacWallet
         backup_address.setLayoutData(data4);
 
         Button backup = new Button (composite, SWT.PUSH);
-        backup.setText("Copy Private Key");
+        backup.setText("Show Private Key");
         backup.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 String priKey = client.backupWallet("1234abcd");
@@ -172,8 +168,8 @@ public class MacWallet
                     infoDialog.setMessage("priKey = " + priKey);
                     infoDialog.open();
                 }else{
-                    logger.info("No private key to copy !!");
-                    errorDialog.setMessage("No private key to copy !!");
+                    logger.info("No private key to show !!");
+                    errorDialog.setMessage("No private key to show !!");
                     errorDialog.open();
                 }
             }
@@ -188,8 +184,8 @@ public class MacWallet
                 logger.info("Logout successful !!!");
                 infoDialog.setMessage("Logout Successful !");
                 infoDialog.open();
-                address_label.setText("");
-                balance_label.setText("");
+                address_label.setText("Address: ");
+                balance_label.setText("Balance: ");
                 account_address = null;
             }
         });
@@ -209,20 +205,17 @@ public class MacWallet
         composite.setLayout(layout);
 
         Label frozen_balance_label = new Label(composite, SWT.NONE);
-        frozen_balance_label.setForeground(white_grey);
         frozen_balance_label.setText("Tron Power: ");
         frozen_balance_label.setLayoutData(data8);
 
         Label expire_time_label = new Label(composite, SWT.NONE);
-        expire_time_label.setForeground(white_grey);
         expire_time_label.setText("Expire Time: ");
         expire_time_label.setLayoutData(data8);
 
         Label freeze_amount_label = new Label(composite, SWT.NONE);
-        freeze_amount_label.setForeground(white_grey);
         freeze_amount_label.setText("Freeze Amount (in TRX): ");
         Text freeze_amount = new Text (composite, SWT.BORDER);
-        freeze_amount.setLayoutData(data4);
+        freeze_amount.setLayoutData(data8);
 
         login.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -234,7 +227,7 @@ public class MacWallet
                     if (client.importWallet("1234abcd", private_key.getText())) {
                         logger.info("Import a wallet and store it successful !!");
                         if (client.login("1234abcd")) {
-                            logger.info("Login successful !");
+                            logger.info("Login/Refresh successful !");
                             infoDialog.setMessage("Login Successful !");
                             infoDialog.open();
                             account_address = client.getAddress();
@@ -373,16 +366,14 @@ public class MacWallet
 //        label.setLayoutData(data8);
 
         Label vote_address_label = new Label(composite, SWT.NONE);
-        vote_address_label.setForeground(white_grey);
         vote_address_label.setText("Witness Address: ");
         Text vote_address = new Text (composite, SWT.BORDER);
         vote_address.setLayoutData(text8);
 
         Label vote_amount_label = new Label(composite, SWT.NONE);
-        vote_amount_label.setForeground(white_grey);
         vote_amount_label.setText("Vote Amount (in TRX): ");
         Text vote_amount = new Text (composite, SWT.BORDER);
-        vote_amount.setLayoutData(data4);
+        vote_amount.setLayoutData(data8);
 
         Button vote = new Button (composite, SWT.PUSH);
         vote.setText ("Vote Witness");
@@ -426,36 +417,55 @@ public class MacWallet
         if (result.isPresent()) {
             GrpcAPI.WitnessList witnessList = result.get();
             for (Protocol.Witness witness : witnessList.getWitnessesList()) {
-                Label witness_address = new Label(scroller, SWT.NONE);
-                witness_address.setForeground(white_grey);
-                witness_address.setText("Address: " + WalletClient.encode58Check(witness.getAddress().toByteArray()));
+                Label witness_address = new Label(composite, SWT.NONE);
+                String witness_address_text = WalletClient.encode58Check(witness.getAddress().toByteArray());
+                witness_address.setText("Address: " + witness_address_text);
+                witness_address.setLayoutData(data8);
 
-                Label witness_vote = new Label(scroller, SWT.NONE);
-                witness_vote.setForeground(white_grey);
-                witness_vote.setText("Votes: " + witness.getVoteCount());
-
-                Label witness_url = new Label(scroller, SWT.NONE);
-                witness_url.setForeground(white_grey);
+                Label witness_url = new Label(composite, SWT.NONE);
                 witness_url.setText("URL: " + witness.getUrl());
+                witness_url.setLayoutData(data8);
 
-                Label witness_produced = new Label(scroller, SWT.NONE);
-                witness_produced.setForeground(white_grey);
+                Label witness_vote = new Label(composite, SWT.NONE);
+                witness_vote.setText("Votes: " + witness.getVoteCount());
+                witness_vote.setLayoutData(data4);
+
+                Label witness_produced = new Label(composite, SWT.NONE);
                 witness_produced.setText("Total Produced: " + witness.getTotalProduced());
+                witness_produced.setLayoutData(data4);
 
-                Label witness_missed = new Label(scroller, SWT.NONE);
-                witness_missed.setForeground(white_grey);
+                Label witness_missed = new Label(composite, SWT.NONE);
                 witness_missed.setText("Total Missed: " + witness.getTotalMissed());
+                witness_missed.setLayoutData(data4);
 
-                Label witness_block = new Label(scroller, SWT.NONE);
-                witness_block.setForeground(white_grey);
+                Label witness_block = new Label(composite, SWT.NONE);
                 witness_block.setText("Latest Block: " + witness.getLatestBlockNum());
+                witness_block.setLayoutData(data4);
 
-                Label witness_active = new Label(scroller, SWT.NONE);
-                witness_active.setForeground(white_grey);
+                Label witness_active = new Label(composite, SWT.NONE);
                 witness_active.setText("Active: " + witness.getIsJobs());
+                witness_active.setLayoutData(data4);
+
+                Button show_asset_address = new Button (composite, SWT.PUSH);
+                show_asset_address.setText("Show Address");
+                show_asset_address.addSelectionListener(new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        if (witness_address_text != null) {
+                            logger.info("Show a address successful !!");
+                            logger.info("Address = " + witness_address_text);
+                            infoDialog.setMessage("Address = " + witness_address_text);
+                            infoDialog.open();
+                        }else{
+                            logger.info("No address !!");
+                            errorDialog.setMessage("No address !!");
+                            errorDialog.open();
+                        }
+                    }
+                });
+                show_asset_address.setLayoutData(data4);
 
                 // create a new label which is used as a separator
-                Label label = new Label(scroller, SWT.SEPARATOR | SWT.HORIZONTAL);
+                Label label = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
                 label.setLayoutData(data8);
             }
         } else {
@@ -469,18 +479,119 @@ public class MacWallet
         // create some controls in TabArea and assign a layout to TabArea
         scroller.setExpandVertical(true);
         scroller.setExpandHorizontal(true);
-        scroller.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        scroller.setMinHeight(folder.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+        scroller.addControlListener(new ControlAdapter(){
+            public void controlResized( ControlEvent e ) {
+// recalculate height in case the resize makes texts
+// wrap or things happen that require it
+                Rectangle r = scroller.getClientArea();
+//                scroller.setMinHeight(folder.computeSize(SWT.DEFAULT, r.height).y);
+                scroller.setMinHeight(38000);
+            }
+        });
 
         tab3.setControl(scroller);
 
         //Tab 4
         TabItem tab4 = new TabItem(folder, SWT.NONE);
-        tab4.setText("History");
+        tab4.setText("Tokens");
 
-        composite = new Composite(folder, SWT.NONE);
+        ScrolledComposite tab4_scroller = new ScrolledComposite(folder, SWT.V_SCROLL);
+        tab4_scroller.setLayout(layout);
+
+        composite = new Composite(tab4_scroller, SWT.NONE);
         composite.setLayout(layout);
 
-        tab4.setControl(composite);
+        Optional<GrpcAPI.AssetIssueList> asset_result = client.getAssetIssueList();
+        if (asset_result.isPresent()) {
+            GrpcAPI.AssetIssueList assetIssueList = asset_result.get();
+            for (Contract.AssetIssueContract assetIssue : assetIssueList.getAssetIssueList()) {
+                Label asset_address = new Label(composite, SWT.NONE);
+                String asset_address_text = WalletClient.encode58Check(assetIssue.getOwnerAddress().toByteArray());
+                asset_address.setText("Address: " + asset_address_text);
+                asset_address.setLayoutData(data8);
+
+                Label asset_url = new Label(composite, SWT.NONE);
+                asset_url.setText("URL: " + new String(assetIssue.getUrl().toByteArray(), Charset.forName("UTF-8")));
+                asset_url.setLayoutData(data8);
+
+                Label asset_start_time = new Label(composite, SWT.NONE);
+                asset_start_time.setText("Start time: " + new Date(assetIssue.getStartTime()));
+                asset_start_time.setLayoutData(data8);
+
+                Label asset_end_time = new Label(composite, SWT.NONE);
+                asset_end_time.setText("End time: " + new Date(assetIssue.getEndTime()));
+                asset_end_time.setLayoutData(data8);
+
+                Label asset_description = new Label(composite, SWT.NONE);
+                asset_description.setText("Description: " + new String(assetIssue.getDescription().toByteArray(), Charset.forName("UTF-8")));
+                asset_description.setLayoutData(data8);
+
+                Label asset_name = new Label(composite, SWT.NONE);
+                asset_name.setText("Name: " + new String(assetIssue.getName().toByteArray(), Charset.forName("UTF-8")));
+                asset_name.setLayoutData(data4);
+
+                Label asset_total_supply = new Label(composite, SWT.NONE);
+                asset_total_supply.setText("Total Supply: " + assetIssue.getTotalSupply());
+                asset_total_supply.setLayoutData(data4);
+
+                Label asset_vote_score = new Label(composite, SWT.NONE);
+                asset_vote_score.setText("Vote Score: " + assetIssue.getVoteScore());
+                asset_vote_score.setLayoutData(data4);
+
+                Label asset_trx_num = new Label(composite, SWT.NONE);
+                asset_trx_num.setText("TRX num: " + assetIssue.getTrxNum());
+                asset_trx_num.setLayoutData(data4);
+
+                Label asset_num = new Label(composite, SWT.NONE);
+                asset_num.setText("Num: " + assetIssue.getNum());
+                asset_num.setLayoutData(data4);
+
+                Button show_asset_address = new Button (composite, SWT.PUSH);
+                show_asset_address.setText("Show Address");
+                show_asset_address.addSelectionListener(new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        if (asset_address_text != null) {
+                            logger.info("Show a address successful !!");
+                            logger.info("Address = " + asset_address_text);
+                            infoDialog.setMessage("Address = " + asset_address_text);
+                            infoDialog.open();
+                        }else{
+                            logger.info("No address !!");
+                            errorDialog.setMessage("No address !!");
+                            errorDialog.open();
+                        }
+                    }
+                });
+                show_asset_address.setLayoutData(data4);
+
+                // create a new label which is used as a separator
+                Label label = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
+                label.setLayoutData(data8);
+            }
+        } else {
+            logger.info("GetAssetIssueList " + " failed !!");
+            errorDialog.setMessage("List Tokens " + " failed !!");
+            errorDialog.open();
+        }
+
+        tab4_scroller.setContent(composite);
+
+        // create some controls in TabArea and assign a layout to TabArea
+        tab4_scroller.setExpandVertical(true);
+        tab4_scroller.setExpandHorizontal(true);
+        tab4_scroller.setMinHeight(folder.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+        tab4_scroller.addControlListener(new ControlAdapter(){
+            public void controlResized( ControlEvent e ) {
+// recalculate height in case the resize makes texts
+// wrap or things happen that require it
+                Rectangle r = tab4_scroller.getClientArea();
+//                scroller.setMinHeight(folder.computeSize(SWT.DEFAULT, r.height).y);
+                tab4_scroller.setMinHeight(38000);
+            }
+        });
+
+        tab4.setControl(tab4_scroller);
 
 //        shell.setDefaultButton (vote);
 //        shell.setLayout (new RowLayout ());
