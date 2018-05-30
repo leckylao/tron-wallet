@@ -14,6 +14,12 @@ A Tron wallet for Mac.
 ## Required.
  - Java JRE 1.8
  
+## Run
+ 
+ Download from https://github.com/leckylao/tron-wallet/blob/master/export.zip
+
+Start with "./run" command
+ 
 ## grpc and apk build
 ```
 ./gradlew build
