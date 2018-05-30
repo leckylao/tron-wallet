@@ -428,38 +428,38 @@ public class MacWallet
             GrpcAPI.WitnessList witnessList = result.get();
             for (Protocol.Witness witness : witnessList.getWitnessesList()) {
                 Label witness_address = new Label(composite, SWT.NONE);
-                witness_address.setBackground(white_grey);
+                witness_address.setForeground(white_grey);
                 String witness_address_text = WalletClient.encode58Check(witness.getAddress().toByteArray());
                 witness_address.setText("Address: " + witness_address_text);
                 witness_address.setLayoutData(data8);
 
                 Label witness_url = new Label(composite, SWT.NONE);
-                witness_url.setBackground(white_grey);
+                witness_url.setForeground(white_grey);
                 witness_url.setText("URL: " + witness.getUrl());
                 witness_url.setLayoutData(data8);
 
                 Label witness_vote = new Label(composite, SWT.NONE);
-                witness_vote.setBackground(white_grey);
+                witness_vote.setForeground(white_grey);
                 witness_vote.setText("Votes: " + witness.getVoteCount());
                 witness_vote.setLayoutData(data4);
 
                 Label witness_produced = new Label(composite, SWT.NONE);
-                witness_produced.setBackground(white_grey);
+                witness_produced.setForeground(white_grey);
                 witness_produced.setText("Total Produced: " + witness.getTotalProduced());
                 witness_produced.setLayoutData(data4);
 
                 Label witness_missed = new Label(composite, SWT.NONE);
-                witness_missed.setBackground(white_grey);
+                witness_missed.setForeground(white_grey);
                 witness_missed.setText("Total Missed: " + witness.getTotalMissed());
                 witness_missed.setLayoutData(data4);
 
                 Label witness_block = new Label(composite, SWT.NONE);
-                witness_block.setBackground(white_grey);
+                witness_block.setForeground(white_grey);
                 witness_block.setText("Latest Block: " + witness.getLatestBlockNum());
                 witness_block.setLayoutData(data4);
 
                 Label witness_active = new Label(composite, SWT.NONE);
-                witness_active.setBackground(white_grey);
+                witness_active.setForeground(white_grey);
                 witness_active.setText("Active: " + witness.getIsJobs());
                 witness_active.setLayoutData(data4);
 
@@ -524,53 +524,53 @@ public class MacWallet
             GrpcAPI.AssetIssueList assetIssueList = asset_result.get();
             for (Contract.AssetIssueContract assetIssue : assetIssueList.getAssetIssueList()) {
                 Label asset_address = new Label(composite, SWT.NONE);
-                asset_address.setBackground(white_grey);
+                asset_address.setForeground(white_grey);
                 String asset_address_text = WalletClient.encode58Check(assetIssue.getOwnerAddress().toByteArray());
                 asset_address.setText("Address: " + asset_address_text);
                 asset_address.setLayoutData(data8);
 
                 Label asset_url = new Label(composite, SWT.NONE);
-                asset_url.setBackground(white_grey);
+                asset_url.setForeground(white_grey);
                 asset_url.setText("URL: " + new String(assetIssue.getUrl().toByteArray(), Charset.forName("UTF-8")));
                 asset_url.setLayoutData(data8);
 
                 Label asset_start_time = new Label(composite, SWT.NONE);
-                asset_start_time.setBackground(white_grey);
+                asset_start_time.setForeground(white_grey);
                 asset_start_time.setText("Start time: " + new Date(assetIssue.getStartTime()));
                 asset_start_time.setLayoutData(data8);
 
                 Label asset_end_time = new Label(composite, SWT.NONE);
-                asset_end_time.setBackground(white_grey);
+                asset_end_time.setForeground(white_grey);
                 asset_end_time.setText("End time: " + new Date(assetIssue.getEndTime()));
                 asset_end_time.setLayoutData(data8);
 
                 Label asset_description = new Label(composite, SWT.NONE);
-                asset_description.setBackground(white_grey);
+                asset_description.setForeground(white_grey);
                 asset_description.setText("Description: " + new String(assetIssue.getDescription().toByteArray(), Charset.forName("UTF-8")));
                 asset_description.setLayoutData(data8);
 
                 Label asset_name = new Label(composite, SWT.NONE);
-                asset_name.setBackground(white_grey);
+                asset_name.setForeground(white_grey);
                 asset_name.setText("Name: " + new String(assetIssue.getName().toByteArray(), Charset.forName("UTF-8")));
                 asset_name.setLayoutData(data4);
 
                 Label asset_total_supply = new Label(composite, SWT.NONE);
-                asset_total_supply.setBackground(white_grey);
+                asset_total_supply.setForeground(white_grey);
                 asset_total_supply.setText("Total Supply: " + assetIssue.getTotalSupply());
                 asset_total_supply.setLayoutData(data4);
 
                 Label asset_vote_score = new Label(composite, SWT.NONE);
-                asset_vote_score.setBackground(white_grey);
+                asset_vote_score.setForeground(white_grey);
                 asset_vote_score.setText("Vote Score: " + assetIssue.getVoteScore());
                 asset_vote_score.setLayoutData(data4);
 
                 Label asset_trx_num = new Label(composite, SWT.NONE);
-                asset_trx_num.setBackground(white_grey);
+                asset_trx_num.setForeground(white_grey);
                 asset_trx_num.setText("TRX num: " + assetIssue.getTrxNum());
                 asset_trx_num.setLayoutData(data4);
 
                 Label asset_num = new Label(composite, SWT.NONE);
-                asset_num.setBackground(white_grey);
+                asset_num.setForeground(white_grey);
                 asset_num.setText("Num: " + assetIssue.getNum());
                 asset_num.setLayoutData(data4);
 
