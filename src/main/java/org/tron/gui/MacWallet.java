@@ -36,9 +36,9 @@ public class MacWallet
         final Color black = new Color(display,30,30,30);
         final Color white_grey = new Color(display,238,238,238);
 //        final Color white_grey = new Color(display,187,187,187);
-//        Image logo = new Image(display, "images/tron-logo.png");
-        String path = MacWallet.class.getClass().getResource("/images/tron-logo.png").getFile();
-        Image logo = new Image(display, path);
+        Image logo = new Image(display, "images/tron-logo.png");
+//        String path = MacWallet.class.getClass().getResource("/images/tron-logo.png").getFile();
+//        Image logo = new Image(display, path);
         shell.setSize(500, 480);
         shell.setBackground(black);
         shell.setLayout(layout);
