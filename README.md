@@ -19,6 +19,11 @@ A Tron wallet for Windows.
 ./gradlew build
 ```
 
+## Run
+Download link: https://github.com/leckylao/tron-wallet/blob/win_wallet/TronWinWallet.zip
+
+Open Run.bat
+
 ## Features
 
 - Register wallet
