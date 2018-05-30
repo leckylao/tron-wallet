@@ -1,6 +1,6 @@
-# Tron Wallet for Windows
+# Tron Wallet for Mac
 
-A Tron wallet for Windows.
+A Tron wallet for Mac.
 
 ## Screenshots
 <img src="https://github.com/leckylao/tron-wallet/blob/master/images/screenshot-tab1.png"> 
