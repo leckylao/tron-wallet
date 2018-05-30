@@ -36,9 +36,8 @@ public class MacWallet
         final Color black = new Color(display,30,30,30);
         final Color white_grey = new Color(display,238,238,238);
 //        final Color white_grey = new Color(display,187,187,187);
-//        Image logo = new Image(display, "images/tron-logo.png");
-        String path = MacWallet.class.getClass().getResource("/images/tron-logo.png").getFile();
-        Image logo = new Image(display, path);
+        Image logo = new Image(display, "images/tron-logo.png");
+//        ImageIO.read(MacWallet.class.getClass().getResource("/images/tron-logo.png"));
         shell.setSize(500, 480);
         shell.setBackground(black);
         shell.setLayout(layout);
@@ -80,28 +79,34 @@ public class MacWallet
         composite.setLayout(layout);
 
         Label address_label = new Label(composite, SWT.NONE);
+        address_label.setForeground(white_grey);
         address_label.setText("Address: ");
         address_label.setLayoutData(data8);
 
         Label balance_label = new Label(composite, SWT.NONE);
+        balance_label.setForeground(white_grey);
         balance_label.setText("Balance: ");
         balance_label.setLayoutData(data8);
 
         Label bandwidth_label = new Label(composite, SWT.NONE);
+        bandwidth_label.setForeground(white_grey);
         bandwidth_label.setText("Bandwidth: ");
         bandwidth_label.setLayoutData(data8);
 
         Label private_key_label = new Label(composite, SWT.NONE);
+        private_key_label.setForeground(white_grey);
         private_key_label.setText("Private Key");
         Text private_key = new Text (composite, SWT.BORDER);
         private_key.setLayoutData(text8);
 
         Label to_address_label = new Label(composite, SWT.NONE);
+        to_address_label.setForeground(white_grey);
         to_address_label.setText("To Address: ");
         Text to_address = new Text (composite, SWT.BORDER);
         to_address.setLayoutData(text8);
 
         Label to_amount_label = new Label(composite, SWT.NONE);
+        to_amount_label.setForeground(white_grey);
         to_amount_label.setText("To Amount (in TRX): ");
         Text to_amount = new Text (composite, SWT.BORDER);
         to_amount.setLayoutData(data8);
@@ -205,14 +210,17 @@ public class MacWallet
         composite.setLayout(layout);
 
         Label frozen_balance_label = new Label(composite, SWT.NONE);
+        frozen_balance_label.setForeground(white_grey);
         frozen_balance_label.setText("Tron Power: ");
         frozen_balance_label.setLayoutData(data8);
 
         Label expire_time_label = new Label(composite, SWT.NONE);
+        expire_time_label.setForeground(white_grey);
         expire_time_label.setText("Expire Time: ");
         expire_time_label.setLayoutData(data8);
 
         Label freeze_amount_label = new Label(composite, SWT.NONE);
+        freeze_amount_label.setForeground(white_grey);
         freeze_amount_label.setText("Freeze Amount (in TRX): ");
         Text freeze_amount = new Text (composite, SWT.BORDER);
         freeze_amount.setLayoutData(data8);
@@ -366,11 +374,13 @@ public class MacWallet
 //        label.setLayoutData(data8);
 
         Label vote_address_label = new Label(composite, SWT.NONE);
+        vote_address_label.setForeground(white_grey);
         vote_address_label.setText("Witness Address: ");
         Text vote_address = new Text (composite, SWT.BORDER);
         vote_address.setLayoutData(text8);
 
         Label vote_amount_label = new Label(composite, SWT.NONE);
+        vote_amount_label.setForeground(white_grey);
         vote_amount_label.setText("Vote Amount (in TRX): ");
         Text vote_amount = new Text (composite, SWT.BORDER);
         vote_amount.setLayoutData(data8);
