@@ -228,7 +228,7 @@ public class MacWallet
                         logger.info("Import a wallet and store it successful !!");
                         if (client.login("1234abcd")) {
                             logger.info("Login/Refresh successful !");
-                            infoDialog.setMessage("Login Successful !");
+                            infoDialog.setMessage("Login/Refresh Successful !");
                             infoDialog.open();
                             account_address = client.getAddress();
                             logger.info("Address" + account_address);
