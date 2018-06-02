@@ -1,12 +1,12 @@
-# Tron Wallet for Mac
+# Tron Wallet for Windows
 
-A Tron wallet for Mac.
+A Tron wallet for Windows.
 
 ## Screenshots
-<img src="https://github.com/leckylao/tron-wallet/blob/master/images/screenshot-tab1.png"> 
-<img src="https://github.com/leckylao/tron-wallet/blob/master/images/screenshot-tab2.png"> 
-<img src="https://github.com/leckylao/tron-wallet/blob/master/images/screenshot-tab3.png"> 
-<img src="https://github.com/leckylao/tron-wallet/blob/master/images/screenshot-tab4.png">
+<img src="https://github.com/leckylao/tron-wallet/blob/win_wallet/tab1.PNG"> 
+<img src="https://github.com/leckylao/tron-wallet/blob/win_wallet/tab2.PNG"> 
+<img src="https://github.com/leckylao/tron-wallet/blob/win_wallet/tab3.PNG"> 
+<img src="https://github.com/leckylao/tron-wallet/blob/win_wallet/tab4.PNG"> 
 
 ## Refrence
 - https://github.com/tronprotocol/wallet-cli
@@ -14,16 +14,15 @@ A Tron wallet for Mac.
 ## Required.
  - Java JRE 1.8
  
-## Run
- 
- Download from https://github.com/leckylao/tron-wallet/blob/master/export.zip
-
-Start with "./run" command
- 
 ## grpc and apk build
 ```
 ./gradlew build
 ```
+
+## Run
+Download link: https://github.com/leckylao/tron-wallet/blob/win_wallet/TronWinWallet.zip
+
+Open Run.bat
 
 ## Features
 
