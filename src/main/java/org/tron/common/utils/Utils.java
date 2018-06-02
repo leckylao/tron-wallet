@@ -19,6 +19,7 @@
 package org.tron.common.utils;
 
 import com.google.protobuf.ByteString;
+import java.io.Console;
 import java.security.SecureRandom;
 import java.nio.*;
 import java.nio.charset.Charset;
@@ -26,22 +27,33 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.tron.api.GrpcAPI.AccountList;
+import java.util.Scanner;
+import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
+import org.tron.api.GrpcAPI.BlockList;
 import org.tron.api.GrpcAPI.TransactionList;
 import org.tron.api.GrpcAPI.WitnessList;
 import org.tron.protos.Contract.AccountCreateContract;
+import org.tron.protos.Contract.AccountUpdateContract;
 import org.tron.protos.Contract.AssetIssueContract;
+import org.tron.protos.Contract.AssetIssueContract.FrozenSupply;
 import org.tron.protos.Contract.DeployContract;
+import org.tron.protos.Contract.FreezeBalanceContract;
 import org.tron.protos.Contract.ParticipateAssetIssueContract;
 import org.tron.protos.Contract.TransferAssetContract;
 import org.tron.protos.Contract.TransferContract;
+import org.tron.protos.Contract.UnfreezeAssetContract;
+import org.tron.protos.Contract.UnfreezeBalanceContract;
 import org.tron.protos.Contract.VoteAssetContract;
 import org.tron.protos.Contract.VoteWitnessContract;
+import org.tron.protos.Contract.WithdrawBalanceContract;
 import org.tron.protos.Contract.WitnessCreateContract;
+import org.tron.protos.Contract.WitnessUpdateContract;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.Frozen;
-import org.tron.protos.Protocol.Account.Vote;
+import org.tron.protos.Protocol.Vote;
+import org.tron.protos.Protocol.Block;
+import org.tron.protos.Protocol.BlockHeader;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Result;
@@ -112,14 +124,17 @@ public class Utils {
         result += frozen.getFrozenBalance();
         result += "\n";
         result += "  expire_time: ";
-        result += frozen.getExpireTime();
+        result += new Date(frozen.getExpireTime());
         result += "\n";
         result += "}";
         result += "\n";
       }
     }
-    result += "bandwidth: ";
-    result += account.getBandwidth();
+    result += "free_net_usage: ";
+    result += account.getFreeNetUsage();
+    result += "\n";
+    result += "net_usage: ";
+    result += account.getNetUsage();
     result += "\n";
     if (account.getCreateTime() != 0) {
       result += "create_time: ";
@@ -154,33 +169,86 @@ public class Utils {
         result += "  balance: ";
         result += account.getAssetMap().get(name);
         result += "\n";
+        result += "  latest_asset_operation_time: ";
+        result += account.getLatestAssetOperationTimeMap().get(name);
+        result += "\n";
+        result += "  free_asset_net_usage: ";
+        result += account.getFreeAssetNetUsageMap().get(name);
+        result += "\n";
+        result += "}";
+        result += "\n";
+      }
+    }
+    if (account.getFrozenSupplyCount() > 0) {
+      for (Frozen frozen : account.getFrozenSupplyList()) {
+        result += "frozen_supply";
+        result += "\n";
+        result += "{";
+        result += "\n";
+        result += "  amount: ";
+        result += frozen.getFrozenBalance();
+        result += "\n";
+        result += "  expire_time: ";
+        result += new Date(frozen.getExpireTime());
+        result += "\n";
         result += "}";
         result += "\n";
       }
     }
     result += "latest_opration_time: ";
-    result += account.getLatestOprationTime();
+    result += new Date(account.getLatestOprationTime());
     result += "\n";
 
+    result += "latest_consume_time: ";
+    result += account.getLatestConsumeTime();
+    result += "\n";
+
+    result += "latest_consume_free_time: ";
+    result += account.getLatestConsumeFreeTime();
+    result += "\n";
+
+    result += "allowance: ";
+    result += account.getAllowance();
+    result += "\n";
+
+    result += "latest_withdraw_time: ";
+    result += new Date(account.getLatestWithdrawTime());
+    result += "\n";
+
+//    result += "code: ";
+//    result += account.getCode();
+//    result += "\n";
+//
+    result += "is_witness: ";
+    result += account.getIsWitness();
+    result += "\n";
+//
+//    result += "is_committee: ";
+//    result += account.getIsCommittee();
+//    result += "\n";
+
+    result += "asset_issued_name: ";
+    result += account.getAssetIssuedName().toStringUtf8();
+    result += "\n";
     return result;
   }
 
-  public static String printAccountList(AccountList accountList) {
-    String result = "\n";
-    int i = 0;
-    for (Account account : accountList.getAccountsList()) {
-      result += "account " + i + " :::";
-      result += "\n";
-      result += "[";
-      result += "\n";
-      result += printAccount(account);
-      result += "]";
-      result += "\n";
-      result += "\n";
-      i++;
-    }
-    return result;
-  }
+//  public static String printAccountList(AccountList accountList) {
+//    String result = "\n";
+//    int i = 0;
+//    for (Account account : accountList.getAccountsList()) {
+//      result += "account " + i + " :::";
+//      result += "\n";
+//      result += "[";
+//      result += "\n";
+//      result += printAccount(account);
+//      result += "]";
+//      result += "\n";
+//      result += "\n";
+//      i++;
+//    }
+//    return result;
+//  }
 
   public static String printWitness(Witness witness) {
     String result = "";
@@ -254,9 +322,6 @@ public class Utils {
     result += "end_time: ";
     result += new Date(assetIssue.getEndTime());
     result += "\n";
-    result += "decay_ratio: ";
-    result += assetIssue.getDecayRatio();
-    result += "\n";
     result += "vote_score: ";
     result += assetIssue.getVoteScore();
     result += "\n";
@@ -266,6 +331,36 @@ public class Utils {
     result += "url: ";
     result += new String(assetIssue.getUrl().toByteArray(), Charset.forName("UTF-8"));
     result += "\n";
+    result += "free asset net limit: ";
+    result += assetIssue.getFreeAssetNetLimit();
+    result += "\n";
+    result += "public free asset net limit: ";
+    result += assetIssue.getPublicFreeAssetNetLimit();
+    result += "\n";
+    result += "public free asset net usage: ";
+    result += assetIssue.getPublicFreeAssetNetUsage();
+    result += "\n";
+    result += "public latest free net time: ";
+    result += assetIssue.getPublicLatestFreeNetTime();
+    result += "\n";
+
+    if (assetIssue.getFrozenSupplyCount() > 0) {
+      for (FrozenSupply frozenSupply : assetIssue.getFrozenSupplyList()) {
+        result += "frozen_supply";
+        result += "\n";
+        result += "{";
+        result += "\n";
+        result += "  amount: ";
+        result += frozenSupply.getFrozenAmount();
+        result += "\n";
+        result += "  frozen_days: ";
+        result += frozenSupply.getFrozenDays();
+        result += "\n";
+        result += "}";
+        result += "\n";
+      }
+    }
+
     return result;
   }
 
@@ -289,23 +384,42 @@ public class Utils {
   public static String printContract(Transaction.Contract contract) {
     String result = "";
     try {
+      result += "type: ";
+      result += contract.getType();
+      result += "\n";
+
       switch (contract.getType()) {
         case AccountCreateContract:
           AccountCreateContract accountCreateContract = contract.getParameter()
               .unpack(AccountCreateContract.class);
           result += "type: ";
-          result += accountCreateContract.getTypeValue();
+          result += accountCreateContract.getType();
           result += "\n";
-          if (accountCreateContract.getAccountName() != null
-              && accountCreateContract.getAccountName().size() > 0) {
-            result += "account_name: ";
-            result += new String(accountCreateContract.getAccountName().toByteArray(),
+          if (accountCreateContract.getAccountAddress() != null
+              && accountCreateContract.getAccountAddress().size() > 0) {
+            result += "account_address: ";
+            result += new String(accountCreateContract.getAccountAddress().toByteArray(),
                 Charset.forName("UTF-8"));
             result += "\n";
           }
           result += "owner_address: ";
           result += WalletClient
               .encode58Check(accountCreateContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          break;
+        case AccountUpdateContract:
+          AccountUpdateContract accountUpdateContract = contract.getParameter()
+              .unpack(AccountUpdateContract.class);
+          if (accountUpdateContract.getAccountName() != null
+              && accountUpdateContract.getAccountName().size() > 0) {
+            result += "account_name: ";
+            result += new String(accountUpdateContract.getAccountName().toByteArray(),
+                Charset.forName("UTF-8"));
+            result += "\n";
+          }
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(accountUpdateContract.getOwnerAddress().toByteArray());
           result += "\n";
           break;
         case TransferContract:
@@ -385,10 +499,22 @@ public class Utils {
               Charset.forName("UTF-8"));
           result += "\n";
           break;
+        case WitnessUpdateContract:
+          WitnessUpdateContract witnessUpdateContract = contract.getParameter()
+              .unpack(WitnessUpdateContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(witnessUpdateContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          result += "url: ";
+          result += new String(witnessUpdateContract.getUpdateUrl().toByteArray(),
+              Charset.forName("UTF-8"));
+          result += "\n";
+          break;
         case AssetIssueContract:
           AssetIssueContract assetIssueContract = contract.getParameter()
               .unpack(AssetIssueContract.class);
-          printAssetIssue(assetIssueContract);
+          result += printAssetIssue(assetIssueContract);
           break;
         case ParticipateAssetIssueContract:
           ParticipateAssetIssueContract participateAssetIssueContract = contract.getParameter()
@@ -409,8 +535,54 @@ public class Utils {
           result += participateAssetIssueContract.getAmount();
           result += "\n";
           break;
+        case FreezeBalanceContract:
+          FreezeBalanceContract freezeBalanceContract = contract.getParameter()
+              .unpack(FreezeBalanceContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(freezeBalanceContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          result += "frozen_balance: ";
+          result += freezeBalanceContract.getFrozenBalance();
+          result += "\n";
+          result += "frozen_duration: ";
+          result += freezeBalanceContract.getFrozenDuration();
+          result += "\n";
+          break;
+        case UnfreezeBalanceContract:
+          UnfreezeBalanceContract unfreezeBalanceContract = contract.getParameter()
+              .unpack(UnfreezeBalanceContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(unfreezeBalanceContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          break;
+        case UnfreezeAssetContract:
+          UnfreezeAssetContract unfreezeAssetContract = contract.getParameter()
+              .unpack(UnfreezeAssetContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(unfreezeAssetContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          break;
+        case WithdrawBalanceContract:
+          WithdrawBalanceContract withdrawBalanceContract = contract.getParameter()
+              .unpack(WithdrawBalanceContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(withdrawBalanceContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          break;
         case DeployContract:
           DeployContract deployContract = contract.getParameter().unpack(DeployContract.class);
+          result += "owner_address: ";
+          result += WalletClient
+              .encode58Check(deployContract.getOwnerAddress().toByteArray());
+          result += "\n";
+          result += "script: ";
+          result += new String(deployContract.getScript().toByteArray(),
+              Charset.forName("UTF-8"));
+          result += "\n";
           break;
         default:
           return "";
@@ -523,9 +695,13 @@ public class Utils {
   }
 
   public static String printTransactionList(TransactionList transactionList) {
+    return printTransactions(transactionList.getTransactionList());
+  }
+
+  public static String printTransactions(List<Transaction> transactionList) {
     String result = "\n";
     int i = 0;
-    for (Transaction transaction : transactionList.getTransactionList()) {
+    for (Transaction transaction : transactionList) {
       result += "transaction " + i + " :::";
       result += "\n";
       result += "[";
@@ -538,4 +714,152 @@ public class Utils {
     }
     return result;
   }
+
+  public static String printBlockRow(BlockHeader.raw raw) {
+    String result = "";
+
+    result += "timestamp: ";
+    result += new Date(raw.getTimestamp());
+    result += "\n";
+
+    result += "txTrieRoot: ";
+    result += ByteArray.toHexString(raw.getTxTrieRoot().toByteArray());
+    result += "\n";
+
+    result += "parentHash: ";
+    result += ByteArray.toHexString(raw.getParentHash().toByteArray());
+    result += "\n";
+
+    result += "number: ";
+    result += raw.getNumber();
+    result += "\n";
+
+    result += "witness_id: ";
+    result += raw.getWitnessId();
+    result += "\n";
+
+    result += "witness_address: ";
+    result += WalletClient.encode58Check(raw.getWitnessAddress().toByteArray());
+    result += "\n";
+
+    return result;
+  }
+
+
+  public static String printBlockHeader(BlockHeader blockHeader) {
+    String result = "";
+    result += "raw_data: ";
+    result += "\n";
+    result += "{";
+    result += "\n";
+    result += printBlockRow(blockHeader.getRawData());
+    result += "}";
+    result += "\n";
+
+    result += "witness_signature: ";
+    result += "\n";
+    result += ByteArray.toHexString(blockHeader.getWitnessSignature().toByteArray());
+    result += "\n";
+    return result;
+  }
+
+  public static String printBlock(Block block) {
+    String result = "\n";
+    if (block.getBlockHeader() != null) {
+      result += "block_header: ";
+      result += "\n";
+      result += "{";
+      result += "\n";
+      result += printBlockHeader(block.getBlockHeader());
+      result += "}";
+      result += "\n";
+    }
+    if (block.getTransactionsCount() > 0) {
+      result += printTransactions(block.getTransactionsList());
+    }
+    return result;
+  }
+
+  public static String printBlockList(BlockList blockList) {
+    String result = "\n";
+    int i = 0;
+    for (Block block : blockList.getBlockList()) {
+      result += "block " + i + " :::";
+      result += "\n";
+      result += "[";
+      result += "\n";
+      result += printBlock(block);
+      result += "]";
+      result += "\n";
+      result += "\n";
+      i++;
+    }
+    return result;
+  }
+
+  public static String printAccountNet(AccountNetMessage accountNet) {
+    String result = "";
+    result += "free_net_used: ";
+    result += accountNet.getFreeNetUsed();
+    result += "\n";
+    result += "free_net_limit: ";
+    result += accountNet.getFreeNetLimit();
+    result += "\n";
+    result += "net_used: ";
+    result += accountNet.getNetUsed();
+    result += "\n";
+    result += "net_limit: ";
+    result += accountNet.getNetLimit();
+    result += "\n";
+    result += "total_net_limit: ";
+    result += accountNet.getTotalNetLimit();
+    result += "\n";
+    result += "total_net_weight: ";
+    result += accountNet.getTotalNetWeight();
+    result += "\n";
+
+    if (accountNet.getAssetNetLimitCount() > 0) {
+      for (String name : accountNet.getAssetNetLimitMap().keySet()) {
+        result += "asset";
+        result += "\n";
+        result += "{";
+        result += "\n";
+        result += "  name: ";
+        result += name;
+        result += "\n";
+        result += "  free_asset_net_used: ";
+        result += accountNet.getAssetNetUsedMap().get(name);
+        result += "\n";
+        result += "  free_asset_net_limit: ";
+        result += accountNet.getAssetNetLimitMap().get(name);
+        result += "\n";
+        result += "}";
+        result += "\n";
+      }
+    }
+    return result;
+  }
+
+  public static String inputPassword() {
+    Scanner in = null;
+    String password;
+    Console cons = System.console();
+    if (cons == null) {
+      in = new Scanner(System.in);
+    }
+    while (true) {
+      if (cons != null) {
+        char[] pwd = cons.readPassword("password: ");
+        password = String.valueOf(pwd);
+      } else {
+        String input = in.nextLine().trim();
+        password = input.split("\\s+")[0];
+      }
+      if (WalletClient.passwordValid(password)) {
+        return password;
+      }
+      System.out.println("Invalid password, please input again.");
+    }
+  }
 }
+
