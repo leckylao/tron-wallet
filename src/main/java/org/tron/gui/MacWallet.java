@@ -39,7 +39,7 @@ public class MacWallet
         GridLayout layout = new GridLayout(2, true);
         final Color red = new Color(display,220,53,69);
         final Color black = new Color(display,30,30,30);
-        final Color white_grey = new Color(display,238,238,238);
+        final Color white_grey = new Color(display,0,0,0);
 //        final Color white_grey = new Color(display,187,187,187);
 //        Image logo = new Image(display, "images/tron-logo.png");
         URL url = MacWallet.class.getClassLoader().getResource("static/img/tron-logo.png");
