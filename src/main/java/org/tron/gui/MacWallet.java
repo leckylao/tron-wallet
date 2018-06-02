@@ -14,8 +14,8 @@ import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import org.tron.walletcli.Client;
 import org.tron.walletserver.WalletClient;
-
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ public class MacWallet
 
     private static final Logger logger = LoggerFactory.getLogger("TronWallet");
     private static Client client = new Client();
+    static Image logo = null;
 
     public static void main (String[] args)
     {
@@ -40,8 +41,16 @@ public class MacWallet
         final Color black = new Color(display,30,30,30);
         final Color white_grey = new Color(display,238,238,238);
 //        final Color white_grey = new Color(display,187,187,187);
-        Image logo = new Image(display, "images/tron-logo.png");
-//        ImageIO.read(MacWallet.class.getClass().getResource("/images/tron-logo.png"));
+//        Image logo = new Image(display, "images/tron-logo.png");
+        URL url = MacWallet.class.getClassLoader().getResource("static/img/tron-logo.png");
+        try {
+            logo = new Image(display, url.openStream());
+        }
+        catch(IOException ex){
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
+        }
+
         shell.setSize(500, 480);
         shell.setBackground(black);
         shell.setLayout(layout);
@@ -116,7 +125,6 @@ public class MacWallet
         to_amount.setLayoutData(text8);
 
         Button login = new Button (composite, SWT.PUSH);
-        login.setBackgroundImage(logo);
         login.setText ("Login/Refresh");
 
         Button register = new Button (composite, SWT.PUSH);
