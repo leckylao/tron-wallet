@@ -315,26 +315,26 @@ public class WalletClient {
   private Transaction signTransaction(Transaction transaction)
       throws CipherException, IOException, CancelException {
     transaction = TransactionUtils.setTimestamp(transaction);
-    System.out.println("Your transaction details are as follows, please confirm.");
-    System.out.println(Utils.printTransaction(transaction));
+//    System.out.println("Your transaction details are as follows, please confirm.");
+//    System.out.println(Utils.printTransaction(transaction));
 
-    Scanner in = new Scanner(System.in);
-    System.out.println("Please confirm that you want to continue enter y or Y, else any other.");
+//    Scanner in = new Scanner(System.in);
+//    System.out.println("Please confirm that you want to continue enter y or Y, else any other.");
 
-    while (true) {
-      String input = in.nextLine().trim();
-      String str = input.split("\\s+")[0];
-      if ("y".equalsIgnoreCase(str)) {
-        break;
-      } else {
-        throw new CancelException("User cancelled");
-      }
-    }
-    System.out.println("Please input your password.");
-    String password = Utils.inputPassword();
+//    while (true) {
+//      String input = in.nextLine().trim();
+//      String str = input.split("\\s+")[0];
+//      if ("y".equalsIgnoreCase(str)) {
+//        break;
+//      } else {
+//        throw new CancelException("User cancelled");
+//      }
+//    }
+//    System.out.println("Please input your password.");
+//    String password = Utils.inputPassword();
     System.out.println(
         "txid = " + ByteArray.toHexString(Hash.sha256(transaction.getRawData().toByteArray())));
-    return TransactionUtils.sign(transaction, this.getEcKey(password));
+    return TransactionUtils.sign(transaction, this.getEcKey("1234abcd"));
   }
 
   public boolean sendCoin(byte[] to, long amount)
