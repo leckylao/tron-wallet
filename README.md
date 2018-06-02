@@ -18,7 +18,7 @@ A Tron wallet for Mac.
  
  Download from https://github.com/leckylao/tron-wallet/blob/master/export.zip
 
-Start with "./run" command
+Start with TronMacWallet.app
  
 ## grpc and apk build
 ```
