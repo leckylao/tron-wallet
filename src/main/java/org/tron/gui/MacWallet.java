@@ -8,10 +8,14 @@ import org.eclipse.swt.widgets.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.api.GrpcAPI;
+import org.tron.core.exception.CancelException;
+import org.tron.keystore.CipherException;
 import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import org.tron.walletcli.Client;
 import org.tron.walletserver.WalletClient;
+
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,10 +92,10 @@ public class MacWallet
         balance_label.setText("Balance: ");
         balance_label.setLayoutData(data8);
 
-        Label bandwidth_label = new Label(composite, SWT.NONE);
-        bandwidth_label.setForeground(white_grey);
-        bandwidth_label.setText("Bandwidth: ");
-        bandwidth_label.setLayoutData(data8);
+//        Label bandwidth_label = new Label(composite, SWT.NONE);
+//        bandwidth_label.setForeground(white_grey);
+//        bandwidth_label.setText("Bandwidth: ");
+//        bandwidth_label.setLayoutData(data8);
 
         Label private_key_label = new Label(composite, SWT.NONE);
         private_key_label.setForeground(white_grey);
@@ -109,7 +113,7 @@ public class MacWallet
         to_amount_label.setForeground(white_grey);
         to_amount_label.setText("To Amount (in TRX): ");
         Text to_amount = new Text (composite, SWT.BORDER);
-        to_amount.setLayoutData(data8);
+        to_amount.setLayoutData(text8);
 
         Button login = new Button (composite, SWT.PUSH);
         login.setBackgroundImage(logo);
@@ -122,23 +126,27 @@ public class MacWallet
         sendCoin.setText("Send Coin");
         sendCoin.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                String toAddress = to_address.getText();
-                String toAmount = to_amount.getText();
-                if(toAddress.isEmpty() || toAmount.isEmpty()){
-                    logger.info("to address and to amount can't be blank");
-                    errorDialog.setMessage("to address and to amount can't be blank");
-                    errorDialog.open();
-                }else {
-                    boolean result = client.sendCoin("1234abcd", toAddress, Long.parseLong(toAmount) * 1000000);
-                    if (result) {
-                        logger.info("Send " + toAmount + " drop to " + toAddress + " successful !!");
-                        infoDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " successful !!");
-                        infoDialog.open();
-                    } else {
-                        logger.info("Send " + toAmount + " drop to " + toAddress + " failed !!");
-                        errorDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " failed !!");
+                try {
+                    String toAddress = to_address.getText();
+                    String toAmount = to_amount.getText();
+                    if (toAddress.isEmpty() || toAmount.isEmpty()) {
+                        logger.info("to address and to amount can't be blank");
+                        errorDialog.setMessage("to address and to amount can't be blank");
                         errorDialog.open();
+                    } else {
+                        boolean result = client.sendCoin(toAddress, Long.parseLong(toAmount) * 1000000);
+                        if (result) {
+                            logger.info("Send " + toAmount + " drop to " + toAddress + " successful !!");
+                            infoDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " successful !!");
+                            infoDialog.open();
+                        } else {
+                            logger.info("Send " + toAmount + " drop to " + toAddress + " failed !!");
+                            errorDialog.setMessage("Send " + toAmount + " drop to " + toAddress + " failed !!");
+                            errorDialog.open();
+                        }
                     }
+                }catch (CipherException | IOException | CancelException e1){
+                    logger.warn("Warning: SendCoin failed,  Please login first !!");
                 }
             }
         });
@@ -166,16 +174,20 @@ public class MacWallet
         backup.setText("Show Private Key");
         backup.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                String priKey = client.backupWallet("1234abcd");
-                if (priKey != null) {
-                    logger.info("Backup a wallet successful !!");
-                    logger.info("priKey = " + priKey);
-                    infoDialog.setMessage("priKey = " + priKey);
-                    infoDialog.open();
-                }else{
-                    logger.info("No private key to show !!");
-                    errorDialog.setMessage("No private key to show !!");
-                    errorDialog.open();
+                try {
+                    String priKey = client.backupWallet("1234abcd");
+                    if (priKey != null) {
+                        logger.info("Backup a wallet successful !!");
+                        logger.info("priKey = " + priKey);
+                        infoDialog.setMessage("priKey = " + priKey);
+                        infoDialog.open();
+                    } else {
+                        logger.info("No private key to show !!");
+                        errorDialog.setMessage("No private key to show !!");
+                        errorDialog.open();
+                    }
+                }catch (CipherException | IOException e1){
+                    logger.warn("Warning: Backup failed,  Please login first !!");
                 }
             }
         });
@@ -223,7 +235,7 @@ public class MacWallet
         freeze_amount_label.setForeground(white_grey);
         freeze_amount_label.setText("Freeze Amount (in TRX): ");
         Text freeze_amount = new Text (composite, SWT.BORDER);
-        freeze_amount.setLayoutData(data8);
+        freeze_amount.setLayoutData(text8);
 
         login.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -232,8 +244,13 @@ public class MacWallet
                     errorDialog.setMessage("Private key can't be blank!");
                     errorDialog.open();
                 }else {
-                    if (client.importWallet("1234abcd", private_key.getText())) {
-                        logger.info("Import a wallet and store it successful !!");
+                    try {
+                        String fileName = client.importWallet("1234abcd", private_key.getText());
+                        if (null == fileName) {
+                            logger.info("Import wallet failed !!");
+                            return;
+                        }
+                        logger.info("ImportImport a wallet successful, keystore file name is " + fileName);
                         if (client.login("1234abcd")) {
                             logger.info("Login/Refresh successful !");
                             infoDialog.setMessage("Login/Refresh Successful !");
@@ -245,13 +262,14 @@ public class MacWallet
                             if (account == null) {
                                 logger.info("Get Balance failed !!!!");
                             } else {
-                                long balance = account.getBalance() / 1000000;
+                                long balance = account.getBalance();
                                 logger.info("Balance: " + balance);
-                                balance_label.setText("Balance: " + String.valueOf(balance) + "TRX");
+                                balance = balance / 1000000; // Convert to TRX
+                                balance_label.setText("Balance: " + String.valueOf(balance) + " TRX");
 
-                                long bandwidth = account.getBandwidth();
-                                logger.info("Bandwidth: " + bandwidth);
-                                bandwidth_label.setText("Bandwidth: " + String.valueOf(bandwidth));
+//                                long bandwidth = account.getBandwidth();
+//                                logger.info("Bandwidth: " + bandwidth);
+//                                bandwidth_label.setText("Bandwidth: " + String.valueOf(bandwidth));
 
                                 int frozenCount = account.getFrozenCount();
                                 if(frozenCount == 0) {
@@ -263,7 +281,7 @@ public class MacWallet
                                         frozenBalance += frozen.getFrozenBalance() / 1000000;
                                         expireTime = frozen.getExpireTime();
                                     }
-                                    frozen_balance_label.setText("Tron Power: " + String.valueOf(frozenBalance) + "TRX");
+                                    frozen_balance_label.setText("Tron Power: " + String.valueOf(frozenBalance) + " TRX");
                                     logger.info("frozenBalance: " + frozenBalance);
                                     logger.info("expireTime: " + expireTime);
                                     Date expire_date = new Date(expireTime);
@@ -271,10 +289,17 @@ public class MacWallet
                                 }
                             }
                         }
+                    /*
+                    if (client.importWallet("1234abcd", private_key.getText())) {
+                        logger.info("Import a wallet and store it successful !!");
+
                     } else {
                         logger.info("Import a wallet failed !!");
                         errorDialog.setMessage("Login Failed !");
                         errorDialog.open();
+                    }*/
+                    }catch (CipherException | IOException e1){
+                        logger.warn("Warning: Import failed, Private key invalid!!");
                     }
                 }
             }
@@ -283,12 +308,18 @@ public class MacWallet
 
         register.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                if (client.registerWallet("1234abcd")) {
-                    logger.info("Register a wallet and store it successful !!");
-                    if (client.login("1234abcd")) {
+                try {
+                    String fileName = client.registerWallet("1234abcd");
+                    if (null == fileName) {
+                        logger.info("Register wallet failed !!");
+                        errorDialog.setMessage("Register Failed !");
+                        errorDialog.open();
+                    }else {
+                        logger.info("Register a wallet successful, keystore file name is " + fileName);
                         infoDialog.setMessage("Register Successful !");
                         infoDialog.open();
                         logger.info("Register successful !");
+                        client.login("1234abcd");
                         account_address = client.getAddress();
                         logger.info("Address" + account_address);
                         address_label.setText("Address: " + account_address);
@@ -299,19 +330,18 @@ public class MacWallet
                         } else {
                             long balance = account.getBalance() / 1000000;
                             logger.info("Balance: " + balance);
-                            balance_label.setText("Balance: " + String.valueOf(balance) + "TRX");
+                            balance_label.setText("Balance: " + String.valueOf(balance) + " TRX");
 
-                            long bandwidth = account.getBandwidth();
-                            logger.info("Bandwidth: " + bandwidth);
-                            bandwidth_label.setText("Bandwidth: " + String.valueOf(bandwidth));
+//                            long bandwidth = account.getBandwidth();
+//                            logger.info("Bandwidth: " + bandwidth);
+//                            bandwidth_label.setText("Bandwidth: " + String.valueOf(bandwidth));
                         }
                     }
-                } else {
-                    logger.info("Register wallet failed !!");
+                }catch (CipherException | IOException e1){
+                    logger.warn("Warning: Register wallet failed !!");
                     errorDialog.setMessage("Register Failed !");
                     errorDialog.open();
                 }
-
             }
         });
         register.setLayoutData(data4);
@@ -329,21 +359,25 @@ public class MacWallet
                     errorDialog.setMessage("Freeze Amount can't be blank");
                     errorDialog.open();
                 }else {
-                    long frozen_balance = Long.parseLong(freeze_amount.getText()) * 1000000;
+                    try {
+                        long frozen_balance = Long.parseLong(freeze_amount.getText()) * 1000000;
 //                    long frozen_duration = 600000 + System.currentTimeMillis();
-                    long frozen_duration = 3;
+                        long frozen_duration = 3;
 //                    long maxFrozenTime = dbManager.getDynamicPropertiesStore().getMaxFrozenTime();
 //                    long minFrozenTime = dbManager.getDynamicPropertiesStore().getMinFrozenTime();
 
-                    boolean result = client.freezeBalance("1234abcd", frozen_balance, frozen_duration);
-                    if (result) {
-                        logger.info("freezeBalance " + " successful !!");
-                        infoDialog.setMessage("Freeze Balance Successful !");
-                        infoDialog.open();
-                    } else {
-                        logger.info("freezeBalance " + " failed !!");
-                        errorDialog.setMessage("Freeze Balance Failed !");
-                        errorDialog.open();
+                        boolean result = client.freezeBalance(frozen_balance, frozen_duration);
+                        if (result) {
+                            logger.info("freezeBalance " + " successful !!");
+                            infoDialog.setMessage("Freeze Balance Successful !");
+                            infoDialog.open();
+                        } else {
+                            logger.info("freezeBalance " + " failed !!");
+                            errorDialog.setMessage("Freeze Balance Failed !");
+                            errorDialog.open();
+                        }
+                    }catch (CipherException | IOException | CancelException e1){
+                        logger.warn("Warning: Freeze balance failed,  Please login first !!");
                     }
                 }
             }
@@ -354,17 +388,22 @@ public class MacWallet
         unfreeze.setText ("Unfreeze");
         unfreeze.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                boolean result = client.unfreezeBalance("1234abcd");
-                if (result) {
-                    logger.info("unfreezeBalance " + " successful !!");
-                    infoDialog.setMessage("Unfreeze Balance Successful !");
-                    infoDialog.open();
+                try {
+                    boolean result = client.unfreezeBalance();
+                    if (result) {
+                        logger.info("unfreezeBalance " + " successful !!");
+                        infoDialog.setMessage("Unfreeze Balance Successful !");
+                        infoDialog.open();
 
-                } else {
-                    logger.info("unfreezeBalance " + " failed !!");
-                    errorDialog.setMessage("Unable to unfreeze TRX. This could be caused because the minimal freeze period hasn't been reached yet.");
-                    errorDialog.open();
+                    } else {
+                        logger.info("unfreezeBalance " + " failed !!");
+                        errorDialog.setMessage("Unable to unfreeze TRX. This could be caused because the minimal freeze period hasn't been reached yet.");
+                        errorDialog.open();
+                    }
+                }catch (CipherException | IOException | CancelException e1){
+                    logger.warn("Warning: Unfreeze balance failed,  Please login first !!");
                 }
+
             }
         });
         unfreeze.setLayoutData(data4);
@@ -383,7 +422,7 @@ public class MacWallet
         vote_amount_label.setForeground(white_grey);
         vote_amount_label.setText("Vote Amount (in TRX): ");
         Text vote_amount = new Text (composite, SWT.BORDER);
-        vote_amount.setLayoutData(data8);
+        vote_amount.setLayoutData(text8);
 
         Button vote = new Button (composite, SWT.PUSH);
         vote.setText ("Vote Witness");
@@ -396,15 +435,19 @@ public class MacWallet
                     HashMap<String, String> witness = new HashMap<String, String>();
                     witness.put(vote_address.getText(), vote_amount.getText());
 
-                    boolean result = client.voteWitness("1234abcd", witness);
-                    if (result) {
-                        logger.info("VoteWitness " + " successful !!");
-                        infoDialog.setMessage("Vote Witness Successful !");
-                        infoDialog.open();
-                    } else {
-                        logger.info("VoteWitness " + " failed !!");
-                        errorDialog.setMessage("Vote Witness Failed !");
-                        errorDialog.open();
+                    try {
+                        boolean result = client.voteWitness(witness);
+                        if (result) {
+                            logger.info("VoteWitness " + " successful !!");
+                            infoDialog.setMessage("Vote Witness Successful !");
+                            infoDialog.open();
+                        } else {
+                            logger.info("VoteWitness " + " failed !!");
+                            errorDialog.setMessage("Vote Witness Failed !");
+                            errorDialog.open();
+                        }
+                    }catch (CipherException | IOException | CancelException e1){
+                        logger.warn("Warning: Vote witness failed,  Please login first !!");
                     }
                 }
             }

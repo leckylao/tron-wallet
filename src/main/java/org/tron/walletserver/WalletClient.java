@@ -222,6 +222,13 @@ public class WalletClient {
         file.mkdir();
       }
     }
+
+    // In order to keep only 1 file to avoid file selection
+    File[] wallets = file.listFiles();
+    for (int i = 0; i < wallets.length; i++) {
+        wallets[i].delete();
+    }
+
     return WalletUtils.generateWalletFile(walletFile, file);
   }
 
@@ -237,6 +244,7 @@ public class WalletClient {
     }
 
     File wallet;
+    /*
     if (wallets.length > 1) {
       for (int i = 0; i < wallets.length; i++) {
         System.out.println("The " + (i + 1) + "th keystore fime name is " + wallets[i].getName());
@@ -264,6 +272,10 @@ public class WalletClient {
     } else {
       wallet = wallets[0];
     }
+    */
+    // Select the first wallet to avoid wallet selection
+    wallet = wallets[0];
+    System.out.println(wallet);
 
     return wallet;
   }
